@@ -18,122 +18,158 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// ReplicationClient is the client API for Replication service.
+// BullyClient is the client API for Bully service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ReplicationClient interface {
+type BullyClient interface {
 	CheckLeaderConn(ctx context.Context, in *CheckMessage, opts ...grpc.CallOption) (*CheckReturnMessage, error)
+	CheckForHigherServers(ctx context.Context, in *HigherServersMessage, opts ...grpc.CallOption) (*HigherServersReturnMessage, error)
 	NewCoordinator(ctx context.Context, in *CoordinaterMessage, opts ...grpc.CallOption) (*CoordinaterAckMessage, error)
 }
 
-type replicationClient struct {
+type bullyClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewReplicationClient(cc grpc.ClientConnInterface) ReplicationClient {
-	return &replicationClient{cc}
+func NewBullyClient(cc grpc.ClientConnInterface) BullyClient {
+	return &bullyClient{cc}
 }
 
-func (c *replicationClient) CheckLeaderConn(ctx context.Context, in *CheckMessage, opts ...grpc.CallOption) (*CheckReturnMessage, error) {
+func (c *bullyClient) CheckLeaderConn(ctx context.Context, in *CheckMessage, opts ...grpc.CallOption) (*CheckReturnMessage, error) {
 	out := new(CheckReturnMessage)
-	err := c.cc.Invoke(ctx, "/Bully.Replication/checkLeaderConn", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/Bully.Bully/checkLeaderConn", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *replicationClient) NewCoordinator(ctx context.Context, in *CoordinaterMessage, opts ...grpc.CallOption) (*CoordinaterAckMessage, error) {
+func (c *bullyClient) CheckForHigherServers(ctx context.Context, in *HigherServersMessage, opts ...grpc.CallOption) (*HigherServersReturnMessage, error) {
+	out := new(HigherServersReturnMessage)
+	err := c.cc.Invoke(ctx, "/Bully.Bully/checkForHigherServers", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bullyClient) NewCoordinator(ctx context.Context, in *CoordinaterMessage, opts ...grpc.CallOption) (*CoordinaterAckMessage, error) {
 	out := new(CoordinaterAckMessage)
-	err := c.cc.Invoke(ctx, "/Bully.Replication/newCoordinator", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/Bully.Bully/newCoordinator", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ReplicationServer is the server API for Replication service.
-// All implementations must embed UnimplementedReplicationServer
+// BullyServer is the server API for Bully service.
+// All implementations must embed UnimplementedBullyServer
 // for forward compatibility
-type ReplicationServer interface {
+type BullyServer interface {
 	CheckLeaderConn(context.Context, *CheckMessage) (*CheckReturnMessage, error)
+	CheckForHigherServers(context.Context, *HigherServersMessage) (*HigherServersReturnMessage, error)
 	NewCoordinator(context.Context, *CoordinaterMessage) (*CoordinaterAckMessage, error)
-	mustEmbedUnimplementedReplicationServer()
+	mustEmbedUnimplementedBullyServer()
 }
 
-// UnimplementedReplicationServer must be embedded to have forward compatible implementations.
-type UnimplementedReplicationServer struct {
+// UnimplementedBullyServer must be embedded to have forward compatible implementations.
+type UnimplementedBullyServer struct {
 }
 
-func (UnimplementedReplicationServer) CheckLeaderConn(context.Context, *CheckMessage) (*CheckReturnMessage, error) {
+func (UnimplementedBullyServer) CheckLeaderConn(context.Context, *CheckMessage) (*CheckReturnMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckLeaderConn not implemented")
 }
-func (UnimplementedReplicationServer) NewCoordinator(context.Context, *CoordinaterMessage) (*CoordinaterAckMessage, error) {
+func (UnimplementedBullyServer) CheckForHigherServers(context.Context, *HigherServersMessage) (*HigherServersReturnMessage, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckForHigherServers not implemented")
+}
+func (UnimplementedBullyServer) NewCoordinator(context.Context, *CoordinaterMessage) (*CoordinaterAckMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NewCoordinator not implemented")
 }
-func (UnimplementedReplicationServer) mustEmbedUnimplementedReplicationServer() {}
+func (UnimplementedBullyServer) mustEmbedUnimplementedBullyServer() {}
 
-// UnsafeReplicationServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ReplicationServer will
+// UnsafeBullyServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to BullyServer will
 // result in compilation errors.
-type UnsafeReplicationServer interface {
-	mustEmbedUnimplementedReplicationServer()
+type UnsafeBullyServer interface {
+	mustEmbedUnimplementedBullyServer()
 }
 
-func RegisterReplicationServer(s grpc.ServiceRegistrar, srv ReplicationServer) {
-	s.RegisterService(&Replication_ServiceDesc, srv)
+func RegisterBullyServer(s grpc.ServiceRegistrar, srv BullyServer) {
+	s.RegisterService(&Bully_ServiceDesc, srv)
 }
 
-func _Replication_CheckLeaderConn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Bully_CheckLeaderConn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CheckMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ReplicationServer).CheckLeaderConn(ctx, in)
+		return srv.(BullyServer).CheckLeaderConn(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/Bully.Replication/checkLeaderConn",
+		FullMethod: "/Bully.Bully/checkLeaderConn",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ReplicationServer).CheckLeaderConn(ctx, req.(*CheckMessage))
+		return srv.(BullyServer).CheckLeaderConn(ctx, req.(*CheckMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Replication_NewCoordinator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Bully_CheckForHigherServers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HigherServersMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BullyServer).CheckForHigherServers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Bully.Bully/checkForHigherServers",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BullyServer).CheckForHigherServers(ctx, req.(*HigherServersMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bully_NewCoordinator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CoordinaterMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ReplicationServer).NewCoordinator(ctx, in)
+		return srv.(BullyServer).NewCoordinator(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/Bully.Replication/newCoordinator",
+		FullMethod: "/Bully.Bully/newCoordinator",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ReplicationServer).NewCoordinator(ctx, req.(*CoordinaterMessage))
+		return srv.(BullyServer).NewCoordinator(ctx, req.(*CoordinaterMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Replication_ServiceDesc is the grpc.ServiceDesc for Replication service.
+// Bully_ServiceDesc is the grpc.ServiceDesc for Bully service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Replication_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "Bully.Replication",
-	HandlerType: (*ReplicationServer)(nil),
+var Bully_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "Bully.Bully",
+	HandlerType: (*BullyServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "checkLeaderConn",
-			Handler:    _Replication_CheckLeaderConn_Handler,
+			Handler:    _Bully_CheckLeaderConn_Handler,
+		},
+		{
+			MethodName: "checkForHigherServers",
+			Handler:    _Bully_CheckForHigherServers_Handler,
 		},
 		{
 			MethodName: "newCoordinator",
-			Handler:    _Replication_NewCoordinator_Handler,
+			Handler:    _Bully_NewCoordinator_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

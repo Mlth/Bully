@@ -3,8 +3,9 @@ syntax = "proto3";
 package Bully;
 option go_package = "https://github.com/Mlth/Bully;Bully";
 
-service Replication {
+service Bully {
     rpc checkLeaderConn(checkMessage) returns (checkReturnMessage) {}
+    rpc checkForHigherServers(higherServersMessage) returns (higherServersReturnMessage) {}
     rpc newCoordinator(coordinaterMessage) returns (coordinaterAckMessage) {}
 }
 
@@ -22,4 +23,12 @@ message coordinaterMessage {
 
 message coordinaterAckMessage {
 
+}
+
+message higherServersMessage {
+
+}
+
+message higherServersReturnMessage {
+    
 }
