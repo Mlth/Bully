@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package Bully;
+option go_package = "https://github.com/Mlth/Bully;Bully";
+
+service Replication {
+    rpc checkLeaderConn(checkMessage) returns (checkReturnMessage) {}
+    rpc newCoordinator(coordinaterMessage) returns (coordinaterAckMessage) {}
+}
+
+message checkMessage {
+
+}
+
+message checkReturnMessage {
+
+}
+
+message coordinaterMessage {
+    int32 id = 1;
+}
+
+message coordinaterAckMessage {
+
+}
